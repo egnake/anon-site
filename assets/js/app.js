@@ -77,8 +77,8 @@
       specFilesTitle: '15-FILE NATIVE RUST ARCHITECTURE'
     },
     tr: {
-      topBrandSub: 'RED TEAM ANTİ-FORENSİK & İZ SÜRME ÖNLEME SİSTEMİ',
-      topSpecIndex: 'v3.0.0 — [SAF RUST // SIFIR HARİCİ CRATE]',
+      topBrandSub: 'RED TEAM ANTİ-ADLİ ANALİZ & İZ ÖNLEME SİSTEMİ',
+      topSpecIndex: 'v3.0.0 — [SAF RUST // HARİCİ CRATE YOK]',
       topSpecSub: '22 DURUMSAL OPSEC MODÜLÜ // MIT LİSANSI',
       statusLabel: 'DURUM:',
       statusValue: 'TESPİT EDİLEMEZ',
@@ -87,38 +87,38 @@
       navDeploy: '03 / KURULUM & CLI',
       navRepo: '04 / GITHUB DEPOSU ↗',
       leftCaption: 'OPSEC MİMARİSİ // 22 VEKTÖR',
-      leftDesc: 'DİJİTAL AYAK İZLERİNİ VE GEÇİCİ ADLİ KALINTILARI SIFIRLAMAK İÇİN LINUX, KALI, WSL2 VE DOCKER ÜZERİNDE ÇALIŞAN SAF RUST MOTORU.',
+      leftDesc: 'DİJİTAL AYAK İZLERİNİ VE GEÇİCİ BELLEK İZLERİNİ SIFIRLAMAK İÇİN LINUX, KALI, WSL2 VE DOCKER ÜZERİNDE ÇALIŞAN SAF RUST MOTORU.',
       layerIdentity: 'KİMLİK',
       layerRouting: 'YÖNLENDİRME',
-      layerAntiforensics: 'ANTİ-FORENSİK',
-      layerDefense: 'AKTİF SAVUNMA',
+      layerAntiforensics: 'ANTİ-ADLİ',
+      layerDefense: 'SAVUNMA',
       activeAssemblyLabel: 'AKTİF MONTAJ:',
       rightMicroLabel: 'MODÜL // ÇEKİRDEK / ÖZELLİK',
-      selectAtmosphere: 'ATMOSFER SEÇİMİ // KUTUP',
+      selectAtmosphere: 'ATMOSFER SEÇİMİ // TEMA',
       selectTarget: 'HEDEF SEÇİMİ // ORTAM',
       modulesAvailable: '22 MODÜL + 6 PROFİL — [SAF RUST]',
       proceedDeploy: 'KURULUMU BAŞLAT',
       kineticCoreLabel: 'TESSERACT DONANIM ÇEKİRDEĞİ:',
       spatialHint: 'TESSERACT ÇEKİRDEĞİNİ DÖNDÜRMEK İÇİN SÜRÜKLEYİN // KİNEMATİK HAREKETİ TETİKLEMEK İÇİN VEKTÖRLERİ SEÇİN',
       mobileStageHint: '3B ÇEKİRDEĞİ DÖNDÜRMEK İÇİN KAYDIRIN',
-      soundOn: 'SENTETİK AÇIK',
+      soundOn: 'AÇIK',
       soundMuted: 'SESSİZ',
       portalConfirmTitle: 'KURULUM SIRALAMASINI ONAYLA',
       portalConfirmSub: 'ZIRHLI KİNEMATİĞİ BAŞLATMAK İÇİN VEKTÖR SEÇİN',
       portalBack: 'GERİ',
       portalConfigurator: 'KONFİGÜRATÖR',
       portalDeploy: 'DAĞIT',
-      portalExecute: 'SIFIR İZ ÇALIŞTIR',
+      portalExecute: 'SIFIR İZ İLE BAŞLAT',
       finaleRiskLabel: 'ATFEDİLME RİSKİ',
       finaleRiskSub: 'SEZGİSEL KORELASYON: ETKİSİZLEŞTİRİLDİ',
       finaleDispersionLabel: 'TAKTİK MATRİS',
-      finaleDispersionVal: '1.200 ŞAŞIRTICI DÜĞÜM',
+      finaleDispersionVal: '1.200 YANILTICI DÜĞÜM',
       finaleArtifactsLabel: 'BAĞIMLILIK AYAK İZİ',
       finaleArtifactsVal: '0 HARİCİ CRATE',
       finaleBadge: 'RED TEAM OPSEC ARAÇ SETİ // RUST v3.0.0',
       finaleHeadline: "ANON'A\nHOŞ GELDİNİZ",
-      finaleSubline: 'EGNAKE TARAFINDAN GELİŞTİRİLEN OPSEC & ANTİ-FORENSİK ÇATISI',
-      finaleParagraph: 'ANON; Linux, Kali, Windows WSL2 ve Docker Red Team operasyonlarında dijital ayak izlerini ve geçici adli kalıntıları sıfırlayan bağımlılıksız saf Rust motorudur.',
+      finaleSubline: 'EGNAKE TARAFINDAN GELİŞTİRİLEN OPSEC & ANTİ-ADLİ ANALİZ ÇATISI',
+      finaleParagraph: 'ANON; Linux, Kali, Windows WSL2 ve Docker Red Team operasyonlarında dijital ayak izlerini ve geçici adli izleri sıfırlayan bağımlılıksız saf Rust motorudur.',
       finaleCoreCite: '15 Rust çekirdek dosyası üzerinde 22 durumsal OPSEC modülü, 6 hazır CLI profili (`paranoia` - `ghost`), canlı TUI paneli ve anlık `--panic` acil kilitleme sunar.',
       btnCopy: 'KOPYALA',
       btnCopied: 'KOPYALANDI',
@@ -136,7 +136,7 @@
       metaCratesVal: '0 HARİCİ CRATE (SAF STD)',
       metaProfiles: 'DERLEME & PROFİLLER',
       metaProfilesVal: 'LTO + 0 UYARI // 6 PROFİL',
-      specProfilesLabel: 'HEADLESS PROFİLLER (--profile) & DAHİLİ ARAÇLAR',
+      specProfilesLabel: 'CLI PROFİLLERİ (--profile) & DAHİLİ ARAÇLAR',
       specFilesTitle: '15 DOSYALIK YEREL RUST MİMARİSİ'
     }
   };
@@ -214,7 +214,7 @@
     {
       path: '13 // src/modules/obfuscation.rs',
       en: 'Timezone UTC locking, hostname cycling, OS sysctl spoofing, browser hardening, tmpfs execution, Firejail, and traffic chaff.',
-      tr: 'UTC saat kilidi, hostname rotasyonu, OS sysctl gizleme, tarayıcı zırhlama, tmpfs yürütme, Firejail ve trafik şaşırtma.'
+      tr: 'UTC saat kilidi, hostname rotasyonu, OS sysctl gizleme, tarayıcı zırhlama, tmpfs üzerinde çalıştırma, Firejail ve trafik şaşırtma.'
     },
     {
       path: '14 // src/modules/defense.rs',
@@ -235,16 +235,16 @@
       layerKey: 'layerIdentity',
       assemblyLabel: {
         en: 'ASSEMBLY 01 // STEALTH FACETED ARMOR PLATES',
-        tr: 'MONTAJ 01 // FASETONİK HAYALET ZIRH PLAKALARI'
+        tr: 'MONTAJ 01 // AÇILI HAYALET ZIRH PLAKALARI'
       },
       count: '⁶',
       submodules: [
         {
           id: 'mac_changer',
-          name: { en: 'MAC CHANGER', tr: 'MAC SAHTEKÂRLIĞI' },
+          name: { en: 'MAC CHANGER', tr: 'MAC DEĞİŞTİRİCİ' },
           synopsis: {
             en: 'Randomizes physical NIC hardware addresses via macchanger before lease negotiation and restores originals cleanly on stop.',
-            tr: 'Kira anlaşmasından önce ağ kartı MAC adreslerini rastgeleleştirir ve durdurmada orijinal donanım kimliğini geri yükler.'
+            tr: 'DHCP kiralama sürecinden önce fiziksel ağ kartı MAC adreslerini rastgeleleştirir; durdurulduğunda orijinal donanım kimliğini geri yükler.'
           }
         },
         {
@@ -265,7 +265,7 @@
         },
         {
           id: 'os_obfuscation',
-          name: { en: 'OS OBFUSCATION', tr: 'İS İMZA GİZLEME' },
+          name: { en: 'OS OBFUSCATION', tr: 'SİSTEM İMZA GİZLEME' },
           synopsis: {
             en: 'Tunes Linux kernel network stack parameters (sysctl TTL and TCP fingerprint traits) against passive OS detection.',
             tr: 'Pasif işletim sistemi tespitine karşı Linux çekirdeği TCP/IP TTL ve ağ yığını parametrelerini maskeler.'
@@ -294,7 +294,7 @@
       layerKey: 'layerRouting',
       assemblyLabel: {
         en: 'ASSEMBLY 02 // 3-AXIS CNC GYROSCOPE GIMBALS',
-        tr: 'MONTAJ 02 // 3-EKSENLİ CNC JİROSKOP HALKALARI'
+        tr: 'MONTAJ 02 // 3 EKSENLİ CNC JİROSKOP HALKALARI'
       },
       count: '⁶',
       submodules: [
@@ -383,7 +383,7 @@
         },
         {
           id: 'execution_stealth',
-          name: { en: 'RAM EXECUTION', tr: 'RAM YÜRÜTME (TMPFS)' },
+          name: { en: 'RAM EXECUTION', tr: 'BELLEKTE ÇALIŞTIRMA (TMPFS)' },
           synopsis: {
             en: 'Clones and re-executes the native Rust binary inside stealth tmpfs mounts with ephemeral path cleanup upon termination.',
             tr: 'Derlenmiş Rust ikili dosyasını geçici tmpfs bellek alanında çalıştırır ve çıkışta çalışma izini siler.'
@@ -394,7 +394,7 @@
           name: { en: 'FIREJAIL SANDBOX', tr: 'SANDBOX İZOLASYONU' },
           synopsis: {
             en: 'Confines target browsers and untrusted binaries inside strict firejail profiles limiting filesystem and device access.',
-            tr: 'Hedef tarayıcı ve yardımcı yazılımları katı dosya sistemi ve yetki sınırlarıyla firejail kum havuzunda hapseder.'
+            tr: 'Hedef tarayıcı ve yardımcı yazılımları katı dosya sistemi ve yetki sınırlarıyla firejail korumalı ortamında sınırlandırır.'
           }
         }
       ]
@@ -404,7 +404,7 @@
       layerKey: 'layerDefense',
       assemblyLabel: {
         en: 'ASSEMBLY 04 // TACTICAL RADAR CHAFF & CAMOUFLAGE MATRIX',
-        tr: 'MONTAJ 04 // TAKTİK RADAR ŞAŞIRTICI & KAMUFLAJ MATRİSİ'
+        tr: 'MONTAJ 04 // TAKTİK RADAR ŞAŞIRTMA & KAMUFLAJ MATRİSİ'
       },
       count: '⁵',
       submodules: [
@@ -413,7 +413,7 @@
           name: { en: 'IPTABLES KILL-SWITCH', tr: 'ACİL AĞ KESİCİ' },
           synopsis: {
             en: 'Locks outbound traffic with fail-closed iptables DROP policies, suppressing IPv6 traffic and accidental clearnet leaks.',
-            tr: 'Dış ağ trafiğini fail-closed iptables kurallarıyla kilitleyerek IPv6 ve kazara açık ağ çıkışlarını keser.'
+            tr: 'Dış ağ trafiğini varsayılan-kapalı (fail-closed) iptables kurallarıyla kilitleyerek IPv6 ve kazara açık ağ çıkışlarını keser.'
           }
         },
         {
@@ -421,12 +421,12 @@
           name: { en: 'ANTI-MITM DAEMON', tr: 'ANTI-MITM SERVİSİ' },
           synopsis: {
             en: 'Monitors gateway ARP bindings asynchronously to flag spoofed MAC addresses and active LAN man-in-the-middle probes.',
-            tr: 'Yerel ağ geçidi ARP tablosunu arka planda sürekli denetleyerek olası ARP sahtekârlığı ve MITM saldırılarını tespit eder.'
+            tr: 'Yerel ağ geçidi ARP tablosunu arka planda sürekli denetleyerek olası ARP zehirleme ve ortadaki adam (MITM) saldırılarını tespit eder.'
           }
         },
         {
           id: 'dpi_spoofing',
-          name: { en: 'DPI SPOOFING', tr: 'DPI ALDATMACA' },
+          name: { en: 'DPI SPOOFING', tr: 'DPI YANILTMA' },
           synopsis: {
             en: 'Alters packet TTL/MSS and TCP signatures in firewall chains to disrupt deep packet inspection heuristics.',
             tr: 'Derin Paket İnceleme (DPI) sistemlerini yanıltmak için güvenlik duvarı seviyesinde TTL/MSS ve TCP özelliklerini ayarlar.'
@@ -437,7 +437,7 @@
           name: { en: 'TRAFFIC CHAFF', tr: 'TRAFİK KAMUFLAJI' },
           synopsis: {
             en: 'Dispatches randomized decoy HTTP/TLS traffic bursts asynchronously to mask idle intervals and statistical flow sizing.',
-            tr: 'Zamanlama ve paket hacmi korelasyonunu bozmak için arka planda rastgele sahte şaşırtıcı trafik üretir.'
+            tr: 'Zamanlama ve paket hacmi korelasyonunu bozmak için arka planda rastgele yanıltıcı trafik üretir.'
           }
         },
         {
