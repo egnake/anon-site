@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ANON // Red Team OPSEC &amp; Anti-Forensics Framework</title>
+  <meta name="description" content="Interactive 3D WebGL Spatial Configurator for ANON v3.0.0 — Pure Rust Operational Security and Anti-Forensics Suite by Ege Parlak (egnake).">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@300;400;500;600&family=Syne:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+
+  <!-- Favicons & App Icons -->
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/icons/favicon-16.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/favicon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon.png">
+
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="theme-titanium" data-lang="en">
+  <!-- Bespoke Magnetic Reticle Cursor -->
+  <div id="reticle-cursor" aria-hidden="true">
+    <div class="cursor-dot"></div>
+    <div class="cursor-ring">
+      <svg viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="48" class="ring-circle" />
+        <line x1="50" y1="2" x2="50" y2="12" class="ring-notch" />
+        <line x1="50" y1="88" x2="50" y2="98" class="ring-notch" />
+        <line x1="2" y1="50" x2="12" y2="50" class="ring-notch" />
+        <line x1="88" y1="50" x2="98" y2="50" class="ring-notch" />
+      </svg>
+    </div>
+  </div>
+
+  <!-- Background WebGL Canvas Container -->
+  <div id="webgl-container"></div>
+
+  <!-- Ambient Texture, Vignette & Architectural Micro-Grid -->
+  <div class="viewport-grid-texture" aria-hidden="true"></div>
+  <div class="viewport-vignette" aria-hidden="true"></div>
+
+  <!-- Spatial Viewport Crosshairs -->
+  <div class="hud-crosshairs" aria-hidden="true">
+    <span class="crosshair ch-top-left">+</span>
+    <span class="crosshair ch-top-right">+</span>
+    <span class="crosshair ch-bottom-left">+</span>
+    <span class="crosshair ch-bottom-right">+</span>
+  </div>
+
+  <!-- SPATIAL HUD (12-Column Swiss Perimeter Grid) -->
+  <div class="hud-wrapper">
+
+    <!-- TOP BAR -->
+    <header class="hud-topbar hud-grid">
+      <!-- Col 1-3: Brand Identity -->
+      <div class="hud-col col-brand">
+        <div class="brand-header">
+          <img src="assets/icons/anon-emblem.png" alt="ANON Emblem" class="brand-emblem" width="22" height="22">
+          <div class="brand-title magnetic-target" data-hover-label="CORE">ANON // OPSEC CORE</div>
+        </div>
+        <div class="brand-subtitle" data-i18n="topBrandSub">RED TEAM ANTI-FORENSICS &amp; ATTRIBUTION EVASION</div>
+      </div>
+
+      <!-- Col 4-6: Engine & License Spec -->
+      <div class="hud-col col-spec">
+        <div class="telemetry-line"><span class="indicator-dot"></span><span data-i18n="topSpecIndex">v3.0.0 — [NATIVE RUST // ZERO CRATES]</span></div>
+        <div class="telemetry-sub" data-i18n="topSpecSub">22 STATEFUL OPSEC MODULES // MIT LICENSE</div>
+      </div>
+
+      <!-- Col 7-8: Language Switcher -->
+      <div class="hud-col col-controls">
+        <div class="lang-switch-group">
+          <span class="lang-label">LOC:</span>
+          <button type="button" class="lang-btn active magnetic-target" data-lang-val="en">EN</button>
+          <span class="lang-sep">/</span>
+          <button type="button" class="lang-btn magnetic-target" data-lang-val="tr">TR</button>
+        </div>
+      </div>
+
+      <!-- Col 9-10: Live GitHub Telemetry -->
+      <div class="hud-col col-telemetry">
+        <div class="github-metrics" id="github-metrics">
+          <span class="metric-item">STARS: <strong id="gh-stars">--</strong></span>
+          <span class="metric-sep">|</span>
+          <span class="metric-item">FORKS: <strong id="gh-forks">--</strong></span>
+          <span class="metric-sep">|</span>
+          <span class="metric-item status-pill"><span class="status-pulse"></span><span data-i18n="statusLabel">STATUS:</span> <strong id="gh-status" data-i18n="statusValue">UNDETECTED</strong></span>
+        </div>
+      </div>
+
+      <!-- Col 11-12: Vertical Micro-Nav -->
+      <div class="hud-col col-nav">
+        <nav class="micro-nav" aria-label="Main Navigation">
+          <button type="button" class="nav-link active magnetic-target" id="nav-arch" data-action="state1">
+            <span class="nav-arrow">-&gt;</span> <span data-i18n="navArch">01 / ARCHITECTURE</span>
+          </button>
+          <button type="button" class="nav-link magnetic-target" id="nav-spec" data-action="toggle-spec">
+            <span class="nav-arrow">-&gt;</span> <span data-i18n="navCore">02 / RUST CORE</span>
+          </button>
+          <button type="button" class="nav-link magnetic-target" id="nav-deploy" data-action="state2">
+            <span class="nav-arrow">-&gt;</span> <span data-i18n="navDeploy">03 / CLI DEPLOY</span>
+          </button>
+          <a href="https://github.com/egnake/anon" target="_blank" rel="noopener noreferrer" class="nav-link external magnetic-target" id="nav-repo">
+            <span class="nav-arrow">-&gt;</span> <span data-i18n="navRepo">04 / GITHUB REPO ↗</span>
+          </a>
+        </nav>
+      </div>
+    </header>
+
+    <!-- MAIN CONFIGURATOR HUD (STATE 1) -->
+    <main class="hud-main-view" id="configurator-view">
+
+      <!-- LEFT REGION: Monumental Hierarchy & Sub-Menu -->
+      <section class="left-inspector" aria-label="OPSEC Layer Hierarchy">
+        <div class="inspector-header">
+          <div class="micro-caption" data-i18n="leftCaption">OPSEC ARCHITECTURE // 22 VECTORS</div>
+          <p class="micro-desc" data-i18n="leftDesc">
+            ZERO-DEPENDENCY RUST ENGINE BUILT FOR LINUX, KALI, WSL2, AND DOCKER TO NEUTRALIZE DIGITAL FOOTPRINTS &amp; VOLATILE ARTIFACTS.
+          </p>
+        </div>
+
+        <div class="hierarchy-container">
+          <!-- Primary Layer List -->
+          <ul class="layer-list" id="primary-layer-list">
+            <li class="layer-item active magnetic-target" data-layer="0">
+              <span class="layer-name" data-i18n="layerIdentity">IDENTITY</span>
+              <sup class="layer-count">⁶</sup>
+            </li>
+            <li class="layer-item magnetic-target" data-layer="1">
+              <span class="layer-name" data-i18n="layerRouting">ROUTING</span>
+              <sup class="layer-count">⁶</sup>
+            </li>
+            <li class="layer-item magnetic-target" data-layer="2">
+              <span class="layer-name" data-i18n="layerAntiforensics">ANTI-FORENSICS</span>
+              <sup class="layer-count">⁵</sup>
+            </li>
+            <li class="layer-item magnetic-target" data-layer="3">
+              <span class="layer-name" data-i18n="layerDefense">DEFENSE</span>
+              <sup class="layer-count">⁵</sup>
+            </li>
+          </ul>
+
+          <!-- Secondary Sub-Menu -->
+          <div class="submenu-wrapper" id="secondary-submenu" aria-live="polite">
+            <!-- Populated dynamically via JavaScript with bilingual data -->
+          </div>
+        </div>
+
+        <!-- Left Footer Telemetry -->
+        <div class="left-telemetry">
+          <div class="telemetry-tag"><span data-i18n="activeAssemblyLabel">ACTIVE ASSEMBLY:</span> <span id="active-assembly-label">ASSEMBLY 01 // STEALTH FACETED ARMOR PLATES</span></div>
+          <div class="telemetry-bar"><div class="telemetry-bar-fill" id="assembly-progress"></div></div>
+        </div>
+      </section>
+
+      <!-- RIGHT REGION: Zero-Box Editorial Inspector -->
+      <section class="right-inspector" aria-label="Module Specification">
+        <div class="inspector-box-clean">
+          <div class="micro-label" data-i18n="rightMicroLabel">MODULE // KERNEL / SPECIFICATION</div>
+
+          <!-- Large Dynamic Headline -->
+          <h2 class="module-headline-clean" id="module-headline">
+            MAC CHANGER
+          </h2>
+
+          <!-- Editorial Statement -->
+          <p class="module-synopsis-clean" id="module-synopsis">
+            Spoofs physical NIC MAC addresses with randomized vendor OUI prefixes across managed interfaces and restores originals cleanly on stop.
+          </p>
+
+          <!-- 3 Borderless Gradient Spheres -->
+          <div class="control-group-clean">
+            <div class="group-label-clean" data-i18n="selectAtmosphere">SELECT ATMOSPHERE // POLARITY</div>
+            <div class="atmosphere-orbs-clean">
+              <button type="button" class="orb-clean active magnetic-target" data-theme="titanium" title="Titanium (Industrial Anodized Light)">
+                <span class="orb-sphere orb-titanium"></span>
+                <span class="orb-caption-clean">TITANIUM</span>
+              </button>
+              <button type="button" class="orb-clean magnetic-target" data-theme="obsidian" title="Obsidian (Vantablack Stealth Dark)">
+                <span class="orb-sphere orb-obsidian"></span>
+                <span class="orb-caption-clean">OBSIDIAN</span>
+              </button>
+              <button type="button" class="orb-clean magnetic-target" data-theme="cobalt" title="Cobalt Lab (Tactical Blueprint)">
+                <span class="orb-sphere orb-cobalt"></span>
+                <span class="orb-caption-clean">COBALT LAB</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 4 Circular Environment Pills (Synced with Deploy Quickstart) -->
+          <div class="control-group-clean">
+            <div class="group-label-clean" data-i18n="selectTarget">SELECT TARGET // ENVIRONMENT</div>
+            <div class="target-pills-clean" role="group" aria-label="Deployment Target Environment">
+              <button type="button" class="pill-round active magnetic-target" data-env="lnx">LNX</button>
+              <button type="button" class="pill-round magnetic-target" data-env="wsl2">WSL2</button>
+              <button type="button" class="pill-round magnetic-target" data-env="rust">RUST</button>
+              <button type="button" class="pill-round magnetic-target" data-env="dkr">DKR</button>
+            </div>
+          </div>
+
+          <!-- Bottom Status & Borderless Proceed Link -->
+          <div class="bottom-action-clean">
+            <div class="status-counter-clean" data-i18n="modulesAvailable">22 MODULES + 6 PROFILES — [PURE RUST]</div>
+            <button type="button" class="btn-proceed-clean magnetic-target" id="btn-init-deploy">
+              <span data-i18n="proceedDeploy">PROCEED TO DEPLOY</span>
+              <span class="btn-arrow">→</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Bottom Telemetry Bar -->
+      <footer class="hud-bottombar hud-grid">
+        <div class="hud-col col-bottom-left">
+          <div class="core-rotation-indicator">
+            <span data-i18n="kineticCoreLabel">TESSERACT HARDWARE CORE:</span> <span id="core-state-indicator">ONLINE // 60 FPS SOLID</span>
+          </div>
+        </div>
+        <div class="hud-col col-bottom-center">
+          <div class="spatial-interaction-hint">
+            <span data-i18n="spatialHint">DRAG TO ROTATE TESSERACT CORE // SELECT OPSEC VECTORS TO TRIGGER KINEMATIC ARTICULATION</span>
+          </div>
+        </div>
+        <div class="hud-col col-bottom-right">
+          <button type="button" class="sound-toggle magnetic-target" id="btn-sound-toggle" aria-label="Toggle Auditory Feedback">
+            <span class="sound-icon">AUDIO:</span> <strong id="sound-state-label">SYNTH ON</strong>
+          </button>
+        </div>
+      </footer>
+    </main>
+
+    <!-- STATE 2: CIRCULAR PORTALS OVERLAY -->
+    <section class="portal-overlay" id="portal-overlay" aria-hidden="true">
+      <div class="portal-instructions">
+        <div class="portal-watermark" data-i18n="portalConfirmTitle">CONFIRM DEPLOYMENT SEQUENCE</div>
+        <div class="portal-subtext" data-i18n="portalConfirmSub">SELECT VECTOR TO COMMIT ARMORED KINEMATICS</div>
+      </div>
+
+      <div class="portal-circle-wrapper portal-left">
+        <button type="button" class="portal-btn magnetic-target" id="btn-portal-back" aria-label="Return to Architecture Configurator">
+          <svg class="portal-svg" viewBox="0 0 200 200">
+            <circle cx="100" cy="100" r="94" class="portal-ring" />
+            <circle cx="100" cy="100" r="86" class="portal-ring-inner" />
+          </svg>
+          <div class="portal-content">
+            <span class="portal-arrow">←</span>
+            <span class="portal-title" data-i18n="portalBack">BACK</span>
+            <span class="portal-desc" data-i18n="portalConfigurator">CONFIGURATOR</span>
+          </div>
+        </button>
+      </div>
+
+      <div class="portal-circle-wrapper portal-right">
+        <button type="button" class="portal-btn magnetic-target" id="btn-portal-deploy" aria-label="Commit Deployment">
+          <svg class="portal-svg" viewBox="0 0 200 200">
+            <circle cx="100" cy="100" r="94" class="portal-ring" />
+            <circle cx="100" cy="100" r="86" class="portal-ring-inner" />
+          </svg>
+          <div class="portal-content">
+            <span class="portal-arrow">→</span>
+            <span class="portal-title" data-i18n="portalDeploy">DEPLOY</span>
+            <span class="portal-desc" data-i18n="portalExecute">EXECUTE ZERO TRACE</span>
+          </div>
+        </button>
+      </div>
+    </section>
+
+    <!-- STATE 3: CINEMATIC FINALE & STRICT 12-COLUMN REVEAL -->
+    <section class="deployment-finale" id="deployment-finale" aria-hidden="true">
+      <div class="finale-content hud-grid-finale">
+        <!-- Left Column (grid-column: 1 / 3) -->
+        <div class="col-finale-left">
+          <div class="telemetry-block">
+            <div class="telemetry-label" data-i18n="finaleRiskLabel">ATTRIBUTION RISK</div>
+            <div class="risk-counter" id="risk-counter">0.00%</div>
+            <div class="risk-sub" data-i18n="finaleRiskSub">HEURISTIC CORRELATION: NEUTRALIZED</div>
+          </div>
+          <div class="telemetry-block secondary">
+            <div class="telemetry-label" data-i18n="finaleDispersionLabel">TACTICAL MATRIX</div>
+            <div class="telemetry-val" data-i18n="finaleDispersionVal">1,200 CHAFF NODES</div>
+            <div class="telemetry-label" data-i18n="finaleArtifactsLabel">CRATE FOOTPRINT</div>
+            <div class="telemetry-val" data-i18n="finaleArtifactsVal">0 EXTERNAL CRATES</div>
+          </div>
+        </div>
+
+        <!-- Center Column (grid-column: 3 / 8) -->
+        <div class="col-finale-center">
+          <div class="identity-badge" data-i18n="finaleBadge">RED TEAM OPSEC TOOLKIT // RUST v3.0.0</div>
+          <h1 class="kinetic-hero-title" id="finale-main-title" data-i18n="finaleHeadline">
+            WELCOME<br>TO ANON
+          </h1>
+          <div class="kinetic-hero-sub" data-i18n="finaleSubline">
+            OPERATIONAL SECURITY &amp; ANTI-FORENSICS FRAMEWORK BY EGNAKE
+          </div>
+          <div class="hero-tags">
+            <span class="hero-tag">TOR + OBFS4</span>
+            <span class="hero-tag">DNSCRYPT / DOH</span>
+            <span class="hero-tag">KILL-SWITCH</span>
+            <span class="hero-tag">COLD-BOOT RAM</span>
+            <span class="hero-tag">MAT2 META-CLEAN</span>
+          </div>
+        </div>
+
+        <!-- Right Column (grid-column: 8 / 13) -->
+        <div class="col-finale-right">
+          <div class="finale-editorial">
+            <p data-i18n="finaleParagraph">
+              ANON is a zero-dependency Pure Rust operational security and anti-forensics suite engineered for Linux, Kali, Windows WSL2, and Docker red team engagements.
+            </p>
+            <p class="corpus-cite-modern" data-i18n="finaleCoreCite">
+              Powered by <strong>22 stateful OPSEC modules</strong>, 6 headless CLI profiles (<code>paranoia</code> to <code>ghost</code>), a live TUI dashboard, and an instant <code>--panic</code> kill-switch across 15 Rust files.
+            </p>
+          </div>
+
+          <!-- Interactive Terminal Quickstart Switcher -->
+          <div class="terminal-block-clean">
+            <div class="terminal-bar-clean">
+              <div class="terminal-env-tabs" role="tablist" aria-label="Install Environment">
+                <button type="button" class="env-tab active magnetic-target" data-env="lnx" role="tab" aria-selected="true">LINUX</button>
+                <button type="button" class="env-tab magnetic-target" data-env="wsl2" role="tab" aria-selected="false">WSL2</button>
+                <button type="button" class="env-tab magnetic-target" data-env="rust" role="tab" aria-selected="false">CARGO</button>
+                <button type="button" class="env-tab magnetic-target" data-env="dkr" role="tab" aria-selected="false">DOCKER</button>
+              </div>
+              <button type="button" class="terminal-copy-btn magnetic-target" id="btn-copy-install">
+                <span class="copy-text" data-i18n="btnCopy">COPY</span>
+              </button>
+            </div>
+            <pre class="terminal-code"><code id="terminal-code-content">git clone https://github.com/egnake/anon.git
+cd anon &amp;&amp; sudo chmod +x setup.sh &amp;&amp; sudo ./setup.sh
+sudo anon</code></pre>
+          </div>
+
+          <!-- Action Row -->
+          <div class="finale-actions">
+            <a href="https://github.com/egnake/anon" target="_blank" rel="noopener noreferrer" class="action-btn primary magnetic-target">
+              <span data-i18n="btnStar">★ STAR ON GITHUB</span>
+            </a>
+            <a href="https://github.com/egnake/anon/archive/refs/tags/v3.0.0.zip" download="anon-v3.0.0.zip" class="action-btn secondary magnetic-target" id="btn-download-release">
+              <span data-i18n="btnDownload">⬇ DOWNLOAD v3.0.0 (.ZIP)</span>
+            </a>
+            <button type="button" class="action-btn tertiary magnetic-target" id="btn-return-core">
+              <span data-i18n="btnReturn">↺ RETURN TO 3D CORE</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RUST CORE ARCHITECTURE SPECIFICATION MODAL (02 / RUST CORE) -->
+    <div class="spec-modal" id="spec-modal" aria-hidden="true" role="dialog" aria-labelledby="spec-modal-title">
+      <div class="spec-backdrop" id="spec-backdrop"></div>
+      <div class="spec-drawer">
+        <div class="spec-header">
+          <div>
+            <div class="spec-kicker" data-i18n="specKicker">TECHNICAL SPECIFICATION // PURE RUST v3.0.0</div>
+            <h2 class="spec-title" id="spec-modal-title" data-i18n="specTitle">ANON RUST CORE ARCHITECTURE</h2>
+          </div>
+          <button type="button" class="spec-close-btn magnetic-target" id="btn-close-spec" aria-label="Close Specification">
+            <span data-i18n="specClose">[ CLOSE ✕ ]</span>
+          </button>
+        </div>
+
+        <div class="spec-body">
+          <div class="spec-meta-grid">
+            <div class="meta-box">
+              <span class="meta-lbl" data-i18n="metaModules">STATEFUL MODULES</span>
+              <span class="meta-val" data-i18n="metaModulesVal">22 MODULES + 5 UTILS</span>
+            </div>
+            <div class="meta-box">
+              <span class="meta-lbl" data-i18n="metaLoc">RUST CODEBASE</span>
+              <span class="meta-val" data-i18n="metaLocVal">15 FILES // 8,200 LOC</span>
+            </div>
+            <div class="meta-box">
+              <span class="meta-lbl" data-i18n="metaCrates">EXTERNAL CRATES</span>
+              <span class="meta-val text-green" data-i18n="metaCratesVal">0 DEPENDENCIES (PURE STD)</span>
+            </div>
+            <div class="meta-box">
+              <span class="meta-lbl" data-i18n="metaProfiles">BUILD &amp; PROFILES</span>
+              <span class="meta-val" data-i18n="metaProfilesVal">LTO + 0 WARN // 6 PRESETS</span>
+            </div>
+          </div>
+
+          <div class="spec-profiles-bar">
+            <div class="meta-lbl" data-i18n="specProfilesLabel">HEADLESS PROFILES (--profile) &amp; BUILT-IN UTILITIES</div>
+            <div class="spec-profile-tags">
+              <code>paranoia</code>
+              <code>quick</code>
+              <code>pentest</code>
+              <code>darknet</code>
+              <code>lockdown</code>
+              <code>ghost</code>
+              <span class="profile-divider">|</span>
+              <code>--dashboard</code>
+              <code>--browser</code>
+              <code>--audit</code>
+              <code>--clean-meta</code>
+              <code>--panic</code>
+            </div>
+          </div>
+
+          <h3 class="spec-section-title" data-i18n="specFilesTitle">15-FILE NATIVE RUST ARCHITECTURE</h3>
+          <div class="corpus-file-list" id="corpus-file-list">
+            <!-- Rendered safely via DOM nodes in JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CDN Dependencies: Three.js r128 & GSAP 3.12 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" crossorigin="anonymous"></script>
+
+  <!-- Main Application Logic -->
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
