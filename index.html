@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>ANON // Red Team OPSEC &amp; Anti-Forensics Framework</title>
   <meta name="description" content="Interactive 3D WebGL Spatial Configurator for ANON v3.0.0 — Pure Rust Operational Security and Anti-Forensics Suite by Ege Parlak (egnake).">
 
@@ -112,6 +112,11 @@
 
     <!-- MAIN CONFIGURATOR HUD (STATE 1) -->
     <main class="hud-main-view" id="configurator-view">
+
+      <!-- Dedicated interactive 3D viewport window on mobile/tablet -->
+      <div class="mobile-stage-spacer" aria-hidden="true">
+        <span class="mobile-stage-hint" data-i18n="mobileStageHint">SWIPE TO ROTATE 3D CORE</span>
+      </div>
 
       <!-- LEFT REGION: Monumental Hierarchy & Sub-Menu -->
       <section class="left-inspector" aria-label="OPSEC Layer Hierarchy">

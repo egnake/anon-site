@@ -37,6 +37,7 @@
       proceedDeploy: 'PROCEED TO DEPLOY',
       kineticCoreLabel: 'TESSERACT HARDWARE CORE:',
       spatialHint: 'DRAG TO ROTATE TESSERACT CORE // SELECT OPSEC VECTORS TO TRIGGER KINEMATIC ARTICULATION',
+      mobileStageHint: 'SWIPE ABOVE TO ROTATE 3D CORE',
       soundOn: 'SYNTH ON',
       soundMuted: 'MUTED',
       portalConfirmTitle: 'CONFIRM DEPLOYMENT SEQUENCE',
@@ -99,6 +100,7 @@
       proceedDeploy: 'KURULUMU BAŞLAT',
       kineticCoreLabel: 'TESSERACT DONANIM ÇEKİRDEĞİ:',
       spatialHint: 'TESSERACT ÇEKİRDEĞİNİ DÖNDÜRMEK İÇİN SÜRÜKLEYİN // KİNEMATİK HAREKETİ TETİKLEMEK İÇİN VEKTÖRLERİ SEÇİN',
+      mobileStageHint: '3B ÇEKİRDEĞİ DÖNDÜRMEK İÇİN KAYDIRIN',
       soundOn: 'SENTETİK AÇIK',
       soundMuted: 'SESSİZ',
       portalConfirmTitle: 'KURULUM SIRALAMASINI ONAYLA',
@@ -583,12 +585,18 @@
     constructor(soundEngine) {
       this.sound = soundEngine;
       this.container = document.getElementById('reticle-cursor');
+      if (!this.container) return;
+
+      this.isTouchOnly = window.matchMedia && window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+      if (this.isTouchOnly) return;
+
       this.dot = this.container.querySelector('.cursor-dot');
       this.ring = this.container.querySelector('.cursor-ring');
 
       this.mouse = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
       this.pos = { x: this.mouse.x, y: this.mouse.y };
       this.lerpFactor = 0.14;
+      this.hasMoved = false;
 
       this.initEvents();
       this.render();
@@ -598,7 +606,23 @@
       window.addEventListener('mousemove', (e) => {
         this.mouse.x = e.clientX;
         this.mouse.y = e.clientY;
+        if (!this.hasMoved) {
+          this.pos.x = e.clientX;
+          this.pos.y = e.clientY;
+          this.hasMoved = true;
+          this.container.classList.add('visible');
+        }
       }, { passive: true });
+
+      document.addEventListener('mouseleave', () => {
+        this.container.classList.remove('visible');
+      });
+
+      document.addEventListener('mouseenter', () => {
+        if (this.hasMoved) {
+          this.container.classList.add('visible');
+        }
+      });
 
       document.addEventListener('mouseover', (e) => {
         const target = e.target.closest('.magnetic-target, a, button, .layer-item, .submenu-item, .pill-round, .orb-clean, .portal-btn');
@@ -620,8 +644,10 @@
       this.pos.x += (this.mouse.x - this.pos.x) * this.lerpFactor;
       this.pos.y += (this.mouse.y - this.pos.y) * this.lerpFactor;
 
-      this.dot.style.transform = `translate(${this.mouse.x}px, ${this.mouse.y}px)`;
-      this.ring.style.transform = `translate(${this.pos.x}px, ${this.pos.y}px)`;
+      if (this.hasMoved) {
+        this.dot.style.transform = `translate3d(${this.mouse.x}px, ${this.mouse.y}px, 0) translate(-50%, -50%)`;
+        this.ring.style.transform = `translate3d(${this.pos.x}px, ${this.pos.y}px, 0) translate(-50%, -50%)`;
+      }
 
       requestAnimationFrame(() => this.render());
     }
@@ -745,15 +771,70 @@
       this.dragRotation = { x: 0, y: 0 };
       this.baseRotation = { x: 0.35, y: 0.45 };
       this.activeLayerIdx = 0;
+      this.activeState = 1;
 
       if (this.initScene()) {
         this.hasWebGL = true;
         this.buildHardwareTesseract();
+        this.applyResponsiveFraming(1, true);
         this.initInteractions();
         this.animate();
       } else {
         const stateEl = document.getElementById('core-state-indicator');
         if (stateEl) stateEl.textContent = 'HUD MODE // NO WEBGL';
+      }
+    }
+
+    getViewportFraming(state = this.activeState) {
+      const width = window.innerWidth;
+      const height = Math.max(window.innerHeight, 1);
+      const aspect = width / height;
+      const isMobile = width <= 960;
+
+      let camZ = width <= 1200 ? 8.8 : 8.1;
+      if (isMobile) {
+        camZ = Math.min(12.6, Math.max(8.8, 7.8 / Math.max(0.54, aspect)));
+      }
+
+      let coreX = 0;
+      let coreY = 0;
+      let coreScale = isMobile ? 0.70 : 0.92;
+
+      if (state === 1 && isMobile) {
+        const topbarEl = document.querySelector('.hud-topbar');
+        const spacerEl = document.querySelector('.mobile-stage-spacer');
+        const topbarH = topbarEl ? topbarEl.getBoundingClientRect().height : 96;
+        const spacerH = spacerEl ? spacerEl.getBoundingClientRect().height : height * 0.35;
+        const stageCenterPx = topbarH + spacerH * 0.44;
+        const ndcY = 1 - (2 * stageCenterPx) / height;
+        const halfH = camZ * Math.tan(THREE.MathUtils.degToRad(19));
+        coreY = Math.min(1.85, Math.max(0.55, ndcY * halfH));
+      } else if (state === 2 && isMobile) {
+        coreScale = 0.74;
+        const ndcY = 1 - (2 * (height * 0.46)) / height;
+        const halfH = camZ * Math.tan(THREE.MathUtils.degToRad(19));
+        coreY = Math.min(0.8, Math.max(-0.2, ndcY * halfH));
+      } else if (state === 3) {
+        coreX = isMobile ? 0 : 10.5;
+        coreY = isMobile ? 8.5 : 0;
+      }
+
+      return { camZ, coreX, coreY, coreScale, isMobile };
+    }
+
+    applyResponsiveFraming(state = this.activeState, immediate = false) {
+      if (!this.hasWebGL || !this.camera || !this.opsecCoreGroup) return;
+      this.activeState = state;
+      const { camZ, coreX, coreY, coreScale } = this.getViewportFraming(state);
+
+      if (immediate) {
+        this.camera.position.z = camZ;
+        this.opsecCoreGroup.position.set(coreX, coreY, 0);
+        this.opsecCoreGroup.scale.set(coreScale, coreScale, coreScale);
+      } else {
+        gsap.to(this.camera.position, { z: camZ, duration: 0.9, ease: 'power3.out' });
+        gsap.to(this.opsecCoreGroup.position, { x: coreX, y: coreY, z: 0, duration: 1.0, ease: 'power3.inOut' });
+        gsap.to(this.opsecCoreGroup.scale, { x: coreScale, y: coreScale, z: coreScale, duration: 0.9, ease: 'power3.inOut' });
       }
     }
 
@@ -1093,25 +1174,56 @@
         this.previousMouse = { x: e.clientX, y: e.clientY };
       });
 
-      window.addEventListener('mouseup', () => {
-        if (this.isDragging) {
-          this.isDragging = false;
-          gsap.to(this.dragRotation, {
-            x: 0,
-            y: 0,
-            duration: 1.1,
-            ease: 'elastic.out(1, 0.5)'
-          });
-        }
-      });
+      const releaseDrag = () => {
+        if (!this.isDragging) return;
+        this.isDragging = false;
+        gsap.to(this.dragRotation, {
+          x: 0,
+          y: 0,
+          duration: 1.1,
+          ease: 'elastic.out(1, 0.5)'
+        });
+      };
+
+      window.addEventListener('mouseup', releaseDrag);
+
+      // Mobile / Tablet Touch Rotation Inside 3D Stage
+      let touchActive = false;
+      window.addEventListener('touchstart', (e) => {
+        if (e.touches.length !== 1) return;
+        const onInteractiveHUD = e.target.closest('.left-inspector, .right-inspector, .hud-topbar, .hud-bottombar, .deployment-finale, .spec-modal, button, a');
+        if (onInteractiveHUD) return;
+        touchActive = true;
+        this.isDragging = true;
+        this.previousMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      }, { passive: true });
+
+      window.addEventListener('touchmove', (e) => {
+        if (!touchActive || e.touches.length !== 1) return;
+        const t = e.touches[0];
+        const deltaX = t.clientX - this.previousMouse.x;
+        const deltaY = t.clientY - this.previousMouse.y;
+        this.dragRotation.y += deltaX * 0.009;
+        this.dragRotation.x += deltaY * 0.005;
+        this.previousMouse = { x: t.clientX, y: t.clientY };
+      }, { passive: true });
+
+      const endTouch = () => {
+        if (!touchActive) return;
+        touchActive = false;
+        releaseDrag();
+      };
+      window.addEventListener('touchend', endTouch, { passive: true });
+      window.addEventListener('touchcancel', endTouch, { passive: true });
     }
 
     onResize() {
       const width = window.innerWidth;
-      const height = window.innerHeight;
+      const height = Math.max(window.innerHeight, 1);
       this.camera.aspect = width / height;
       this.camera.updateProjectionMatrix();
       this.renderer.setSize(width, height);
+      this.applyResponsiveFraming(this.activeState, true);
     }
 
     // Kinematic Articulation on 4 Primary OPSEC Layers
@@ -1406,7 +1518,7 @@
       this.targetPills = document.querySelectorAll('.pill-round');
 
       this.initEvents();
-      this.renderLayer(0, 0);
+      this.renderLayer(0, 0, true);
     }
 
     onEnvChange(fn) {
@@ -1454,7 +1566,7 @@
       });
     }
 
-    renderLayer(layerIdx, submoduleIdx = 0) {
+    renderLayer(layerIdx, submoduleIdx = 0, immediate = false) {
       this.currentLayerIdx = layerIdx;
       this.currentSubmoduleIdx = submoduleIdx;
 
@@ -1495,12 +1607,14 @@
         this.submenuWrapper.appendChild(item);
       });
 
-      gsap.fromTo(this.submenuWrapper.children,
-        { opacity: 0, x: -8 },
-        { opacity: 1, x: 0, duration: 0.35, stagger: 0.05, ease: 'power2.out' }
-      );
+      if (!immediate) {
+        gsap.fromTo(this.submenuWrapper.children,
+          { opacity: 0, x: -8 },
+          { opacity: 1, x: 0, duration: 0.35, stagger: 0.05, ease: 'power2.out' }
+        );
+      }
 
-      this.renderSubmoduleDetails(currentLayer.submodules[submoduleIdx]);
+      this.renderSubmoduleDetails(currentLayer.submodules[submoduleIdx], immediate);
     }
 
     selectSubmodule(submoduleIdx) {
@@ -1517,8 +1631,15 @@
       this.core.triggerSubmoduleRecoil(submoduleIdx);
     }
 
-    renderSubmoduleDetails(sub) {
+    renderSubmoduleDetails(sub, immediate = false) {
       const lang = this.i18n.currentLang;
+      if (immediate) {
+        gsap.killTweensOf([this.headlineEl, this.synopsisEl]);
+        this.headlineEl.textContent = sub.name[lang];
+        this.synopsisEl.textContent = sub.synopsis[lang];
+        gsap.set([this.headlineEl, this.synopsisEl], { opacity: 1, y: 0 });
+        return;
+      }
       gsap.to([this.headlineEl, this.synopsisEl], {
         opacity: 0,
         y: -3,
@@ -1699,22 +1820,37 @@
       }
     }
 
+    syncNavActiveState(isArchitecture) {
+      if (this.navArch) this.navArch.classList.toggle('active', isArchitecture);
+      if (this.navDeploy) this.navDeploy.classList.toggle('active', !isArchitecture);
+    }
+
     transitionToState2() {
       if (this.currentState === 2) return;
       this.currentState = 2;
       this.sound.playSelect();
+      this.syncNavActiveState(false);
 
-      gsap.to(['.left-inspector', '.right-inspector', '.hud-bottombar'], {
-        opacity: 0,
-        x: (i) => i === 0 ? -40 : (i === 1 ? 40 : 0),
-        duration: 0.7,
+      this.deploymentFinale.setAttribute('aria-hidden', 'true');
+      this.deploymentFinale.classList.remove('active');
+
+      const isMobile = window.innerWidth <= 960;
+      const state1Targets = ['.left-inspector', '.right-inspector', '.hud-bottombar', '.mobile-stage-spacer'];
+      gsap.killTweensOf(state1Targets);
+      gsap.to(state1Targets, {
+        autoAlpha: 0,
+        x: (i) => isMobile ? 0 : (i === 0 ? -40 : (i === 1 ? 40 : 0)),
+        y: isMobile ? 10 : 0,
+        duration: isMobile ? 0.45 : 0.7,
         ease: 'power3.inOut',
         onComplete: () => {
+          this.configuratorView.style.visibility = 'hidden';
           this.configuratorView.style.pointerEvents = 'none';
         }
       });
 
       if (this.core.hasWebGL && this.core.opsecCoreGroup) {
+        this.core.applyResponsiveFraming(2, false);
         gsap.to(this.core.opsecCoreGroup.rotation, {
           y: Math.PI / 2,
           x: Math.PI / 6,
@@ -1744,32 +1880,28 @@
 
     returnToState1() {
       this.currentState = 1;
+      this.syncNavActiveState(true);
       this.portalOverlay.setAttribute('aria-hidden', 'true');
       this.deploymentFinale.setAttribute('aria-hidden', 'true');
       this.portalOverlay.classList.remove('active');
       this.deploymentFinale.classList.remove('active');
+      this.configuratorView.style.visibility = 'visible';
       this.configuratorView.style.pointerEvents = 'auto';
 
       if (this.core.hasWebGL && this.core.opsecCoreGroup) {
-        gsap.to(this.core.opsecCoreGroup.position, {
-          x: 0, y: 0, z: 0,
-          duration: 1.1,
-          ease: 'power3.inOut'
-        });
-        gsap.to(this.core.opsecCoreGroup.scale, {
-          x: 0.95, y: 0.95, z: 0.95,
-          duration: 1.0,
-          ease: 'power3.inOut'
-        });
+        this.core.applyResponsiveFraming(1, false);
         this.core.setLayer(this.ui.currentLayerIdx);
       }
 
-      gsap.to(['.left-inspector', '.right-inspector', '.hud-bottombar'], {
-        opacity: 1,
+      const state1Targets = ['.left-inspector', '.right-inspector', '.hud-bottombar', '.mobile-stage-spacer'];
+      gsap.killTweensOf(state1Targets);
+      gsap.to(state1Targets, {
+        autoAlpha: 1,
         x: 0,
-        duration: 0.7,
+        y: 0,
+        duration: 0.65,
         ease: 'power3.out',
-        delay: 0.2
+        delay: 0.15
       });
     }
 
@@ -1787,11 +1919,7 @@
       });
 
       if (this.core.hasWebGL && this.core.opsecCoreGroup) {
-        gsap.to(this.core.opsecCoreGroup.position, {
-          x: 10.5,
-          duration: 1.4,
-          ease: 'power3.inOut'
-        });
+        this.core.applyResponsiveFraming(3, false);
       }
 
       this.deploymentFinale.setAttribute('aria-hidden', 'false');
